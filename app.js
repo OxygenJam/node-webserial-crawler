@@ -8,7 +8,7 @@ async function createPDF(anchors){
 
     var chapter = [];
 
-    /* // Whole Chapter
+    // Whole Chapter
     for(var i=0; i<anchors.length;i++){
         var body = await getChapterHTML(anchors[i]);
 
@@ -17,40 +17,64 @@ async function createPDF(anchors){
             console.log(chalk.blue("Chapter " + (i+1) +"; "), chalk.green("number of paragraphs:"), paragraphs.length);
             return paragraphs;
         })
-    }*/
+    }
 
-    //For debugging purposes Lel only 1 chapter
+    /*//For debugging purposes Lel only 1 chapter
     var body = await getChapterHTML(anchors[0]);
 
     chapter[0] = await getChapter(body).then((paragraphs)=>{
-        console.log(chalk.green("Finished loading chapter content!\n"))
-        console.log(chalk.blue("Chapter " + 1 +"; "), chalk.green("number of paragraphs:"), paragraphs.length);
+        console.log(chalk.green('>>'),'Finished loading chapter content!\n');
+        console.log(chalk.green('>>'), chalk.blue('Chapter ' + 1 + '; '), 'number of paragraphs: ', chalk.yellow(paragraphs.length));
         return paragraphs;
-    })
+    })*/
 
     //console.log(chapter[0].length);
 
+    console.log(chalk.green('>>'),'Processing PDF, please wait...');
     var doc = new PDFDocument;
 
     doc.pipe(fs.createWriteStream('output.pdf'));
+
+    //METADATA of the webserial
+    doc.fontSize(36)
+        .text(webserial.name, {align:'center'})
+        .moveDown()
+        .fontSize(16)
+        .text('By: '+ webserial.author, {align:'center'})
+        .moveDown();
+
+    doc.fontSize(8)
+        .text('Created using ', {align:'center'})
+        .fillColor('blue')
+        .text('node-webserial-crawler ', {link:'https://github.com/OxygenJam/node-webserial-crawler', underline:true, align: 'center'})
+        .fillColor('black')
+        .text('and ', {align:'center'})
+        .fillColor('blue')
+        .text('PDFkit', {link:'http://pdfkit.org', align:'center', underline: true})
+        .fillColor('black');
 
     for(var i = 0; i<chapter.length; i++){
 
         //Chapter Header
         doc.addPage()
             .fontSize(25)
-            .text('Chapter '+ (i+1), 100, 100);
+            .text('Chapter '+ (i+1), 100, 100)
+            .moveDown();
 
         //Paragraph
         for(var j = 0; j<chapter[i].length; j++){
 
+
             doc.fontSize(12)
-                .text(chapter[i][j]);
+                .text(chapter[i][j])
+                .moveDown();
         }
 
     }
 
     doc.end();
+
+    console.log(chalk.green('>>'),'PDF finished, saved as output.pdf');
 }
 
 /**
@@ -66,13 +90,13 @@ async function getAnchors(html){
     var anchors = [];
 
     
-    console.log(chalk.green('Indexing chapters...'));
+    console.log(chalk.green('>>'),'Indexing chapters...');
     $(toc).each((i, elem)=>{
         anchors[i] = $(elem).attr('href');
         console.log(chalk.green(">>"),anchors[i]);
     });
 
-    console.log(chalk.green('Total number of chapters: '), anchors.length);
+    console.log(chalk.green('>>'), 'Total number of chapters: ', chalk.yellow(anchors.length));
     
 
     createPDF(anchors);
@@ -88,7 +112,7 @@ async function getChapter(html){
 
     var $ = cheerio.load(html);
     var paragraphs = [];
-    console.log(chalk.green('Retrieving chapter content...'));
+    console.log(chalk.green('>>'),'Retrieving chapter content...');
 
     $(content).each((i,elem)=>{
         paragraphs[i] = $(elem).text();
@@ -104,7 +128,7 @@ async function getChapter(html){
  * @param {String} url This refers to the url string of the chapter to be extracted from
  */
 function getChapterHTML(url){
-    console.log(chalk.green('\n\nLoading the '), chalk.blue(url), chalk.green(' html body'));
+    console.log(chalk.green('\n\n>>'),'Loading the html body of ', chalk.blue(url));
     return request(url);
 }
 
@@ -117,7 +141,7 @@ function getChapterHTML(url){
  */
 function main(url){
 
-    console.log(chalk.green('Loading the main table of content webpage...'));
+    console.log(chalk.green('>>'),'Loading the main table of content webpage...');
     request(url)
         .then((body)=>{
             console.log(chalk.green(body));
