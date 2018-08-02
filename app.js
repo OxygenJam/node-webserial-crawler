@@ -18,16 +18,18 @@ async function createPDF(anchors){
     // Whole Chapter
     
     for(var i=0; i<anchors.length;i++){
+        var isPromiseRejected = false;
 
-        var body = await getChapterHTML(anchors[i],3).catch((error)=>{
-            chapter[i][0] = "An error occured during the retrieval of this chapter, please view it online...";
-
+        var body = await getChapterHTML(anchors[i],3).catch(function errorHandler(error){
+            chapter[i] = ["An error occured during the retrieval of this chapter, please view it online..."];
             errors.push('Chapter number: ' + (i+1));
-            i++;
 
             console.log(chalk.red('ERROR:'),error);
-            return getChapterHTML(anchors[i],3);
+            isPromiseRejected = true;
         });
+        if(isPromiseRejected==true){
+            continue;
+        }
 
         if(title!=null || title!=""){
             chaptertitles[i] = getChapterTitle(body);
@@ -112,7 +114,7 @@ async function createPDF(anchors){
 
     console.log(chalk.green('>>'),'PDF finished, saved as output.pdf');
     if(errors.length>0){
-        console.log(chalk.green('>>'),'Program executed with ', chalk.red(errors.length), '. They are the following chapters:\n');
+        console.log(chalk.green('>>'),'Program executed with ', chalk.red(errors.length), ' errors. They are the following chapters:\n');
         for(var i = 0; i<errors.length;i++){
             console.log(chalk.red('#'),errors[i]);
         }
