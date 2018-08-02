@@ -1,0 +1,15 @@
+{
+    "name":"Void Domain",
+    "author":"TowerCurator",
+    "metadata":{
+        "ToC":{
+            "URL":"https://towercurator.wordpress.com/index/",
+            "selector":"#content-body .entry a:not(.sd-button):not(.sd-link-color)",
+            "book":""
+        },
+        "chapter":{
+            "title":"",
+            "content":""
+        }
+    }
+}
