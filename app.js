@@ -4,19 +4,28 @@ const request = require('request-promise');
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 
+/**
+ * This creates the PDF document
+ * 
+ * @param {Array} anchors The array of anchors to be extracted
+ */
 async function createPDF(anchors){
 
     var chapter = [];
 
     // Whole Chapter
+    // I have no idea how to create retry chain so don't blame me if this looks horrible
+
     for(var i=0; i<anchors.length;i++){
-        var body = await getChapterHTML(anchors[i]);
+        var body = await getChapterHTML(anchors[i],3);
 
         chapter[i] = await getChapter(body).then((paragraphs)=>{
             console.log(chalk.green('>>'),'Finished loading chapter content!\n');
             console.log(chalk.green('>>'), chalk.blue('Chapter ' + (i+1) + '; '), 'number of paragraphs: ', chalk.yellow(paragraphs.length));
             return paragraphs;
-        })
+        }).catch((error)=>{
+            console.log(chalk.red('ERROR:'),error);
+        });
     }
 
     /*//For debugging purposes Lel only 1 chapter
@@ -126,10 +135,21 @@ async function getChapter(html){
  * This retrieves the HTML document for the getChapter function to use.
  * 
  * @param {String} url This refers to the url string of the chapter to be extracted from
+ * @param {Number} retries This refers to the number of retries left before the application exits upon error
  */
-function getChapterHTML(url){
+function getChapterHTML(url, retries){
+
     console.log(chalk.green('\n\n>>'),'Loading the html body of ', chalk.blue(url));
-    return request(url);
+
+    return request(url).catch((error)=>{
+        if(retries>0){
+            console.log(chalk.red('ERROR:'),'An error occured, retrying...');
+            return getChapterHTML(url, retries -1);
+        }
+        else{
+            throw 'Maximum retries has been used, check your internect connection';
+        }
+    });
 }
 
 /**
