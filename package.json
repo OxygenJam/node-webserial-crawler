@@ -6,6 +6,8 @@
   "dependencies": {
     "chalk": "^2.4.1",
     "cheerio": "^1.0.0-rc.2",
+    "fs": "0.0.1-security",
+    "pdfkit": "^0.8.3",
     "request": "^2.87.0",
     "request-promise": "^4.2.2"
   }
