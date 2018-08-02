@@ -12,12 +12,26 @@ const fs = require('fs');
 async function createPDF(anchors){
 
     var chapter = [];
+    var chaptertitles = [];
+    var errors = [];
 
     // Whole Chapter
-    // I have no idea how to create retry chain so don't blame me if this looks horrible
-
+    
     for(var i=0; i<anchors.length;i++){
-        var body = await getChapterHTML(anchors[i],3);
+
+        var body = await getChapterHTML(anchors[i],3).catch((error)=>{
+            chapter[i][0] = "An error occured during the retrieval of this chapter, please view it online...";
+
+            errors.push('Chapter number: ' + (i+1));
+            i++;
+
+            console.log(chalk.red('ERROR:'),error);
+            return getChapterHTML(anchors[i],3);
+        });
+
+        if(title!=null || title!=""){
+            chaptertitles[i] = getChapterTitle(body);
+        }
 
         chapter[i] = await getChapter(body).then((paragraphs)=>{
             console.log(chalk.green('>>'),'Finished loading chapter content!\n');
@@ -28,21 +42,31 @@ async function createPDF(anchors){
         });
     }
 
-    /*//For debugging purposes Lel only 1 chapter
-    var body = await getChapterHTML(anchors[0]);
+    //For debugging purposes Lel only 1 chapter
+    /*
+    var body = await getChapterHTML(anchors[132],3).catch((error)=>{
+        console.log(chalk.red('ERROR:'),error);
+        return getChapterHTML(anchors[133],3);
+    });
 
+     if(title!=null || title!=""){
+            chaptertitles[0] = getChapterTitle(body);
+    }
+    
     chapter[0] = await getChapter(body).then((paragraphs)=>{
         console.log(chalk.green('>>'),'Finished loading chapter content!\n');
-        console.log(chalk.green('>>'), chalk.blue('Chapter ' + 1 + '; '), 'number of paragraphs: ', chalk.yellow(paragraphs.length));
+        console.log(chalk.green('>>'), chalk.blue('Chapter ' + (0) + '; '), 'number of paragraphs: ', chalk.yellow(paragraphs.length));
         return paragraphs;
-    })*/
+    }).catch((error)=>{
+        console.log(chalk.red('ERROR:'),error);
+    });*/
 
     //console.log(chapter[0].length);
 
     console.log(chalk.green('>>'),'Processing PDF, please wait...');
     var doc = new PDFDocument;
 
-    doc.pipe(fs.createWriteStream('output.pdf'));
+    doc.pipe(fs.createWriteStream(webserial.name + ".pdf"));
 
     //METADATA of the webserial
     doc.fontSize(36)
@@ -62,12 +86,15 @@ async function createPDF(anchors){
         .text('PDFkit', {link:'http://pdfkit.org', align:'center', underline: true})
         .fillColor('black');
 
+    
     for(var i = 0; i<chapter.length; i++){
 
+        var chaptertitle = (title != null || title !="") ? chaptertitles[i] : ("Chapter " + (i+1));
         //Chapter Header
+
         doc.addPage()
             .fontSize(25)
-            .text('Chapter '+ (i+1), 100, 100)
+            .text(chaptertitle, 100, 100)
             .moveDown();
 
         //Paragraph
@@ -84,6 +111,15 @@ async function createPDF(anchors){
     doc.end();
 
     console.log(chalk.green('>>'),'PDF finished, saved as output.pdf');
+    if(errors.length>0){
+        console.log(chalk.green('>>'),'Program executed with ', chalk.red(errors.length), '. They are the following chapters:\n');
+        for(var i = 0; i<errors.length;i++){
+            console.log(chalk.red('#'),errors[i]);
+        }
+    }
+    else{
+        console.log(chalk.green('>>'),'Program executed without any issues, enjoy the read! :)');
+    }
 }
 
 /**
@@ -109,6 +145,19 @@ async function getAnchors(html){
     
 
     createPDF(anchors);
+}
+
+/**
+ * Gets the title of the chapter if title is not blank in JSON
+ * 
+ * @param {String} html This refers to the whole HTML document of the chapter. 
+ */
+function getChapterTitle(html){
+
+    var $ = cheerio.load(html);
+    var chaptertitle = $(title).text();
+
+    return chaptertitle;
 }
 
 /**
@@ -147,7 +196,7 @@ function getChapterHTML(url, retries){
             return getChapterHTML(url, retries -1);
         }
         else{
-            throw 'Maximum retries has been used, check your internect connection';
+            throw 'Maximum retries has been used, connectivity issues or encoding errors are at play. Skipping the chapter';
         }
     });
 }
@@ -186,7 +235,7 @@ function main(url){
  * for the webcrawling functions in this application.
  * 
  */
-var webserial = require('./webserials/' + 'void-domain.json');
+var webserial = require('./webserials/' + 'worm.json');
 var url = webserial.metadata.ToC.URL;
 var toc = webserial.metadata.ToC.selector;
 var title = webserial.metadata.chapter.title;

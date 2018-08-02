@@ -1,0 +1,15 @@
+{
+    "name":"Worm",
+    "author":"Wildbow",
+    "metadata":{
+        "ToC":{
+            "URL":"https://parahumans.wordpress.com/table-of-contents/",
+            "selector":".entry-content a:not(.sd-button)",
+            "book":""
+        },
+        "chapter":{
+            "title":".entry-header .entry-title",
+            "content":".entry-content p:not(p[style])"
+        }
+    }
+}

@@ -1,7 +1,7 @@
 {
   "name": "webserial-ebook-generator",
   "author": "Zird Triztan E. Driz",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "extracts the webserial and exports as an ebook",
   "dependencies": {
     "chalk": "^2.4.1",
