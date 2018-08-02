@@ -13,8 +13,8 @@ async function createPDF(anchors){
         var body = await getChapterHTML(anchors[i]);
 
         chapter[i] = await getChapter(body).then((paragraphs)=>{
-            console.log(chalk.green("Finished loading chapter content!\n"))
-            console.log(chalk.blue("Chapter " + (i+1) +"; "), chalk.green("number of paragraphs:"), paragraphs.length);
+            console.log(chalk.green('>>'),'Finished loading chapter content!\n');
+            console.log(chalk.green('>>'), chalk.blue('Chapter ' + (i+1) + '; '), 'number of paragraphs: ', chalk.yellow(paragraphs.length));
             return paragraphs;
         })
     }
