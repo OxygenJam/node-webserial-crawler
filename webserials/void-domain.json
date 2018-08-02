@@ -9,7 +9,7 @@
         },
         "chapter":{
             "title":"",
-            "content":""
+            "content":".entry p:not(p[style])"
         }
     }
 }
