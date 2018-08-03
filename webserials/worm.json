@@ -3,7 +3,7 @@
     "author":"Wildbow",
     "metadata":{
         "ToC":{
-            "URL":"https://parahumans.wordpress.com/table-of-contents/",
+            "url":"https://parahumans.wordpress.com/table-of-contents/",
             "selector":".entry-content a:not(.sd-button)",
             "book":""
         },

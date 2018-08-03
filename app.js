@@ -22,7 +22,8 @@ async function createPDF(anchors){
 
         var body = await getChapterHTML(anchors[i],3).catch(function errorHandler(error){
             chapter[i] = ["An error occured during the retrieval of this chapter, please view it online..."];
-            errors.push('Chapter number: ' + (i+1));
+            chaptertitles[i] = 'Chapter ' + (i+1) ;
+            errors.push(chaptertitles[i]);
 
             console.log(chalk.red('ERROR:'),error);
             isPromiseRejected = true;
@@ -208,20 +209,80 @@ function getChapterHTML(url, retries){
  * It first loads the url to be the root html for Cheer.io to
  * traverse upon.
  * 
- * @param {String} url This refers to the url string of the ToC where the chapters are seen.
  */
-function main(url){
+function main(){
 
-    console.log(chalk.green('>>'),'Loading the main table of content webpage...');
-    request(url)
-        .then((body)=>{
-            console.log(chalk.green(body));
-            
-            getAnchors(body);
-        })
-        .catch((error)=>{
-            console.log(chalk.red(error));
-        })
+    //Checks if the command is valid or not, else exits
+    if(processCLIInput()){
+
+        console.log(chalk.green('>>'),'Loading the main table of content webpage...');
+        request(url)
+            .then((body)=>{
+                console.log(chalk.green(body));
+                
+                getAnchors(body);
+            })
+            .catch((error)=>{
+                console.log(chalk.red(error));
+            })
+    }
+
+}
+
+/**
+ * Processing of commands from the CLI
+ */
+function processCLIInput(){
+
+    function displayHelp(){
+        console.log(chalk.green('>>'),`
+            Please check the following commands:
+                -help                   :   Displays the commands and help window
+                -load <filename>.json   :   Loads the file to be processed
+        `);
+    }
+
+    if(process.argv[2]){
+        let command = process.argv[2];
+
+        if(command.indexOf('-')===0){
+
+            command = command.substring(1);
+
+            if(command == 'help'){
+                displayHelp();
+                return false();
+            }
+            else if(command == 'load'){
+                if(process.argv[3]){
+                    var filename = process.argv[3];
+
+                    if(filename.indexOf(('.json').toLowerCase())!=-1){
+                        webserial = require('./webserials/' + filename);
+                        url = webserial.metadata.ToC.url;
+                        toc = webserial.metadata.ToC.selector;
+                        title = webserial.metadata.chapter.title;
+                        content = webserial.metadata.chapter.content
+                        return true;
+                    }
+                    else{
+                        console.log(chalk.red('ERROR:'), 'Invalid filetype, check your arguments and if it is in JSON format.');
+                        return false;
+                    }
+                }
+                else{
+                    return false;
+                }
+            }
+
+        }
+        else{
+            console.log(chalk.red('ERROR:'), 'That seems to be an invalid command.');
+            displayHelp();
+
+            return false;
+        }
+    }
 
 }
 
@@ -237,11 +298,7 @@ function main(url){
  * for the webcrawling functions in this application.
  * 
  */
-var webserial = require('./webserials/' + 'worm.json');
-var url = webserial.metadata.ToC.URL;
-var toc = webserial.metadata.ToC.selector;
-var title = webserial.metadata.chapter.title;
-var content = webserial.metadata.chapter.content
+var webserial, url, toc, title, content;
 
 //Main
-main(url);
+main();
