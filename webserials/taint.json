@@ -1,0 +1,15 @@
+{
+    "name":"Taint",
+    "author":"Liv",
+    "metadata":{
+        "ToC":{
+            "url":"https://lsdell.com/table-of-contents/",
+            "selector":".block-toc a",
+            "book":""
+        },
+        "chapter":{
+            "title":".entry-title",
+            "content":".entry-content p"
+        }
+    }
+}
