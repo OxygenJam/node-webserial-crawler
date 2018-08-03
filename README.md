@@ -18,4 +18,4 @@ A simple nodeJS application to retrieve webserial's chapter and export it in a c
   2.4 Under *System Variables*, click on *Path* and the edit button
   2.5 Click the new button and add the directory of your NodeJS, then click ok
   2.6 You're done! Just restart your CLI and you're good to go!
-3. Please use this [online tool](https://try.jsoup.org/) for css selectors, just simple load the table of content url of your webserial. If you're not familiar with css selectors, please [refer to this tutorial)(https://www.w3schools.com/cssref/css_selectors.asp).
+3. Please use this [online tool](https://try.jsoup.org/) for css selectors, just simple load the table of content url of your webserial. If you're not familiar with css selectors, please [refer to this tutorial](https://www.w3schools.com/cssref/css_selectors.asp).
